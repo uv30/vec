@@ -9,22 +9,35 @@ struct Vec {
 	int capacity;
 };
 
-void push(Vec *self, unsigned char element) {
-	if (self->capacity == 0) {
-		self->capacity = 1;
-		self->ptr = (unsigned char *)malloc(sizeof(unsigned char));
-		self->ptr[0] = element;
+Vec new(void) {
+	Vec self;
+	self.ptr = NULL;
+	self.len = 0;
+	self.capacity = 0;
+	return self;
+}
+
+void format(Vec *self) {
+	printf("Vec {");
+	for (int i = 0; i < self->len; i++) {
+		if (i == (self->len - 1)) {
+			printf("%d}\n", self->ptr[i]);
+		} else {
+			printf("%d, ", self->ptr[i]);
+		}
 	}
-	else if (self->len == self->capacity) {
-		self->capacity *= 2;
-		unsigned char buffer[self->len];
-		for (int i = 0; i < self->len; i++) {
-			buffer[i] = self->ptr[i];
+	return;
+}
+
+void push(Vec *self, unsigned char element) {
+	if (self->len == self->capacity) {
+		self->capacity = (self->capacity == 0) ? 1 : self->capacity * 2;
+		unsigned char *temp = realloc(self->ptr, sizeof(unsigned char) * self->capacity);
+		if (!temp) {
+			printf("Error: out of memory");
+			exit(EXIT_FAILURE);
 		}
-		self->ptr = (unsigned char *)realloc(self->ptr, sizeof(unsigned char) * self->capacity);
-		for (int i = 0; i < self->len; i++) {
-			self->ptr[i] = buffer[i]; 
-		}
+		self->ptr = temp;
 	}
 	self->ptr[self->len] = element;
 	self->len++;
@@ -32,11 +45,10 @@ void push(Vec *self, unsigned char element) {
 }
 
 int main(void) {
-	Vec my_vec;
-	for (int i = 0; i < 10; i++) {
+	Vec my_vec = new();
+	for (int i = 0; i < 0xff; i++) {
 		push(&my_vec, i + 1);
 	}
-	for (int i = 0; i < 10; i++) {
-		printf("%d\n", my_vec.ptr[i]);
-	}
+	format(&my_vec);
+	return EXIT_SUCCESS;
 }
